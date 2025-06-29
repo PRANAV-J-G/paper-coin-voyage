@@ -6,6 +6,11 @@ import { Badge } from '@/components/ui/badge';
 const Navbar = () => {
   const [balance] = useState(10000.00);
 
+  const handleNavigation = (section: string) => {
+    console.log(`Navigating to ${section}`);
+    // TODO: Implement navigation logic or scroll to sections
+  };
+
   return (
     <nav className="glass-card border-b border-border/20 px-6 py-4 sticky top-0 z-50">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
@@ -18,16 +23,32 @@ const Navbar = () => {
           </div>
           
           <div className="hidden md:flex items-center space-x-6">
-            <Button variant="ghost" className="text-foreground hover:text-primary">
+            <Button 
+              variant="ghost" 
+              className="text-foreground hover:text-primary"
+              onClick={() => handleNavigation('Dashboard')}
+            >
               Dashboard
             </Button>
-            <Button variant="ghost" className="text-foreground hover:text-primary">
+            <Button 
+              variant="ghost" 
+              className="text-foreground hover:text-primary"
+              onClick={() => handleNavigation('Trading')}
+            >
               Trading
             </Button>
-            <Button variant="ghost" className="text-foreground hover:text-primary">
+            <Button 
+              variant="ghost" 
+              className="text-foreground hover:text-primary"
+              onClick={() => handleNavigation('Portfolio')}
+            >
               Portfolio
             </Button>
-            <Button variant="ghost" className="text-foreground hover:text-primary">
+            <Button 
+              variant="ghost" 
+              className="text-foreground hover:text-primary"
+              onClick={() => handleNavigation('Reports')}
+            >
               Reports
             </Button>
           </div>

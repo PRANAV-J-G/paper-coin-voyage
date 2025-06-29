@@ -3,6 +3,16 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 const Hero = () => {
+  const handleStartTrading = () => {
+    console.log('Start Trading button clicked');
+    // TODO: Navigate to trading dashboard or show trading modal
+  };
+
+  const handleViewPortfolio = () => {
+    console.log('View Portfolio button clicked');
+    // TODO: Navigate to portfolio page or show portfolio modal
+  };
+
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-background via-background to-primary/10">
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg width=%2260%22 height=%2260%22 viewBox=%220 0 60 60%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cg fill=%22none%22 fill-rule=%22evenodd%22%3E%3Cg fill=%22%23ffffff%22 fill-opacity=%220.02%22%3E%3Cpath d=%22M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
@@ -22,10 +32,19 @@ const Hero = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8 py-4 crypto-glow">
+            <Button 
+              size="lg" 
+              className="bg-primary hover:bg-primary/90 text-lg px-8 py-4 crypto-glow"
+              onClick={handleStartTrading}
+            >
               Start Trading Now
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-primary/50 hover:bg-primary/10">
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="text-lg px-8 py-4 border-primary/50 hover:bg-primary/10"
+              onClick={handleViewPortfolio}
+            >
               View Portfolio
             </Button>
           </div>
