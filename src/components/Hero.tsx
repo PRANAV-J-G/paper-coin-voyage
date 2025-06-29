@@ -1,16 +1,19 @@
 
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 const Hero = () => {
+  const navigate = useNavigate();
+
   const handleStartTrading = () => {
     console.log('Start Trading button clicked');
-    // TODO: Navigate to trading dashboard or show trading modal
+    navigate('/trading');
   };
 
   const handleViewPortfolio = () => {
     console.log('View Portfolio button clicked');
-    // TODO: Navigate to portfolio page or show portfolio modal
+    navigate('/portfolio');
   };
 
   return (

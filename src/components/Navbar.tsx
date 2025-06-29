@@ -1,21 +1,23 @@
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 const Navbar = () => {
   const [balance] = useState(10000.00);
+  const navigate = useNavigate();
 
-  const handleNavigation = (section: string) => {
-    console.log(`Navigating to ${section}`);
-    // TODO: Implement navigation logic or scroll to sections
+  const handleNavigation = (path: string) => {
+    console.log(`Navigating to ${path}`);
+    navigate(path);
   };
 
   return (
     <nav className="glass-card border-b border-border/20 px-6 py-4 sticky top-0 z-50">
       <div className="flex items-center justify-between max-w-7xl mx-auto">
         <div className="flex items-center space-x-8">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
             <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">PC</span>
             </div>
@@ -26,28 +28,28 @@ const Navbar = () => {
             <Button 
               variant="ghost" 
               className="text-foreground hover:text-primary"
-              onClick={() => handleNavigation('Dashboard')}
+              onClick={() => handleNavigation('/dashboard')}
             >
               Dashboard
             </Button>
             <Button 
               variant="ghost" 
               className="text-foreground hover:text-primary"
-              onClick={() => handleNavigation('Trading')}
+              onClick={() => handleNavigation('/trading')}
             >
               Trading
             </Button>
             <Button 
               variant="ghost" 
               className="text-foreground hover:text-primary"
-              onClick={() => handleNavigation('Portfolio')}
+              onClick={() => handleNavigation('/portfolio')}
             >
               Portfolio
             </Button>
             <Button 
               variant="ghost" 
               className="text-foreground hover:text-primary"
-              onClick={() => handleNavigation('Reports')}
+              onClick={() => handleNavigation('/reports')}
             >
               Reports
             </Button>
