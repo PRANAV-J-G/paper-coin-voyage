@@ -4,12 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { User } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+// Temporarily commented out until backend is ready
+// import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar = () => {
-  const { user } = useAuth();
+  // Temporary mock user until backend is ready
+  const mockUser = { firstName: 'John', balance: 10000.00 };
   const navigate = useNavigate();
-  const balance = user?.balance || 10000.00;
+  const balance = mockUser.balance;
 
   const handleNavigation = (path: string) => {
     console.log(`Navigating to ${path}`);
@@ -71,17 +73,15 @@ const Navbar = () => {
             Live Trading
           </Badge>
 
-          {user && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/profile')}
-              className="flex items-center space-x-2"
-            >
-              <User className="w-4 h-4" />
-              <span className="hidden md:block">{user.firstName}</span>
-            </Button>
-          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/profile')}
+            className="flex items-center space-x-2"
+          >
+            <User className="w-4 h-4" />
+            <span className="hidden md:block">{mockUser.firstName}</span>
+          </Button>
         </div>
       </div>
     </nav>

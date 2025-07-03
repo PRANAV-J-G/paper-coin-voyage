@@ -110,6 +110,8 @@ export const usePortfolio = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ['portfolio'],
     queryFn: () => apiService.trading.getPortfolio(),
+    retry: false, // Don't retry failed requests
+    enabled: false, // Disable auto-fetching for now since backend isn't ready
   });
 
   useEffect(() => {
@@ -119,6 +121,7 @@ export const usePortfolio = () => {
   }, [data]);
 
   useEffect(() => {
+    // Subscribe to portfolio updates when available
     subscribe('portfolio', (newPortfolio: Portfolio) => {
       setPortfolio(newPortfolio);
     });
@@ -130,7 +133,7 @@ export const usePortfolio = () => {
 
   return {
     portfolio,
-    isLoading,
+    isLoading: false, // Don't show loading state when backend is not ready
     error,
   };
 };

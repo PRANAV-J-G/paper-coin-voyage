@@ -6,53 +6,44 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { User } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import { useAuth } from '@/contexts/AuthContext';
+// Temporarily commented out until backend is ready
+// import { useAuth } from '@/contexts/AuthContext';
 
 const Profile = () => {
-  const { user, updateProfile } = useAuth();
+  // Temporary mock data until backend is ready
+  const mockUser = {
+    id: '1',
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john.doe@example.com',
+    phone: '+1 (555) 123-4567',
+    bio: 'Passionate crypto trader with 3+ years of experience in digital asset markets.',
+    createdAt: '2022-01-15',
+    totalTrades: 156,
+    winRate: 68,
+    totalProfit: 2450.75,
+    activeTrades: 3,
+    balance: 10000
+  };
+
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    bio: ''
+    firstName: mockUser.firstName,
+    lastName: mockUser.lastName,
+    email: mockUser.email,
+    phone: mockUser.phone,
+    bio: mockUser.bio
   });
-
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        bio: user.bio || ''
-      });
-    }
-  }, [user]);
 
   const handleSave = async () => {
     try {
-      await updateProfile(formData);
+      // TODO: Implement when backend is ready
+      console.log('Profile update:', formData);
       setIsEditing(false);
     } catch (error) {
       console.error('Failed to update profile:', error);
     }
   };
-
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="max-w-4xl mx-auto px-6 py-8">
-          <div className="text-center py-12">
-            <h1 className="text-4xl font-bold gradient-text mb-4">Profile</h1>
-            <p className="text-muted-foreground">Please log in to view your profile</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -72,15 +63,15 @@ const Profile = () => {
                   <User className="w-12 h-12 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold">{user.firstName} {user.lastName}</h3>
-                  <p className="text-muted-foreground">{user.email}</p>
+                  <h3 className="text-xl font-bold">{mockUser.firstName} {mockUser.lastName}</h3>
+                  <p className="text-muted-foreground">{mockUser.email}</p>
                 </div>
                 <div className="flex justify-center space-x-2">
                   <Badge variant="secondary" className="bg-accent/20 text-accent border-accent/30">
                     Active Trader
                   </Badge>
                   <Badge variant="outline">
-                    Member since {new Date(user.createdAt || Date.now()).getFullYear()}
+                    Member since {new Date(mockUser.createdAt).getFullYear()}
                   </Badge>
                 </div>
               </div>
@@ -176,19 +167,19 @@ const Profile = () => {
             <h2 className="text-2xl font-bold mb-6">Trading Statistics</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="text-center">
-                <div className="text-3xl font-bold text-accent mb-2">{user.totalTrades || 0}</div>
+                <div className="text-3xl font-bold text-accent mb-2">{mockUser.totalTrades}</div>
                 <div className="text-sm text-muted-foreground">Total Trades</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">{user.winRate || 0}%</div>
+                <div className="text-3xl font-bold text-primary mb-2">{mockUser.winRate}%</div>
                 <div className="text-sm text-muted-foreground">Win Rate</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold gradient-text mb-2">${(user.totalProfit || 0).toLocaleString()}</div>
+                <div className="text-3xl font-bold gradient-text mb-2">${mockUser.totalProfit.toLocaleString()}</div>
                 <div className="text-sm text-muted-foreground">Total P&L</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-green-500 mb-2">{user.activeTrades || 0}</div>
+                <div className="text-3xl font-bold text-green-500 mb-2">{mockUser.activeTrades}</div>
                 <div className="text-sm text-muted-foreground">Active Trades</div>
               </div>
             </div>

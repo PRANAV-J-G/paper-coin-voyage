@@ -20,17 +20,19 @@ export const useCryptoPrices = () => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['crypto-prices'],
     queryFn: () => apiService.crypto.getPrices(),
-    refetchInterval: 30000, // Fallback polling every 30 seconds
+    refetchInterval: 30000,
+    retry: false, // Don't retry failed requests
+    enabled: false, // Disable auto-fetching for now since backend isn't ready
   });
 
   useEffect(() => {
-    if (data) {
+    if (data && data.length > 0) {
       setPrices(data);
     }
   }, [data]);
 
   useEffect(() => {
-    // Subscribe to real-time price updates
+    // Subscribe to real-time price updates when available
     subscribe('crypto-prices', (newPrices: CryptoPrice[]) => {
       setPrices(newPrices);
     });
@@ -42,7 +44,7 @@ export const useCryptoPrices = () => {
 
   return {
     prices,
-    isLoading,
+    isLoading: false, // Don't show loading state when backend is not ready
     error,
     refetch,
   };
