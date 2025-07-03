@@ -1,29 +1,38 @@
 
-import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useCryptoPrices } from '@/hooks/useCrypto';
+import { usePortfolio } from '@/hooks/useTrading';
 
 const TradingDashboard = () => {
-  const [cryptoData] = useState([
-    { symbol: 'BTC', name: 'Bitcoin', price: 43250.80, change: 2.34, volume: '28.5B' },
-    { symbol: 'ETH', name: 'Ethereum', price: 2580.45, change: -1.23, volume: '12.3B' },
-    { symbol: 'ADA', name: 'Cardano', price: 0.4521, change: 5.67, volume: '2.1B' },
-    { symbol: 'SOL', name: 'Solana', price: 98.32, change: 3.45, volume: '1.8B' },
-    { symbol: 'DOT', name: 'Polkadot', price: 6.78, change: -0.89, volume: '852M' },
-    { symbol: 'LINK', name: 'Chainlink', price: 14.25, change: 1.76, volume: '1.2B' },
-  ]);
+  const { prices: cryptoData, isLoading: cryptoLoading } = useCryptoPrices();
+  const { portfolio, isLoading: portfolioLoading } = usePortfolio();
 
-  const [portfolio] = useState({
+  // Fallback data if API is not connected
+  const fallbackCryptoData = [
+    { symbol: 'BTC', name: 'Bitcoin', price: 43250.80, change: 2.34, volume: '28.5B', lastUpdated: '' },
+    { symbol: 'ETH', name: 'Ethereum', price: 2580.45, change: -1.23, volume: '12.3B', lastUpdated: '' },
+    { symbol: 'ADA', name: 'Cardano', price: 0.4521, change: 5.67, volume: '2.1B', lastUpdated: '' },
+    { symbol: 'SOL', name: 'Solana', price: 98.32, change: 3.45, volume: '1.8B', lastUpdated: '' },
+    { symbol: 'DOT', name: 'Polkadot', price: 6.78, change: -0.89, volume: '852M', lastUpdated: '' },
+    { symbol: 'LINK', name: 'Chainlink', price: 14.25, change: 1.76, volume: '1.2B', lastUpdated: '' },
+  ];
+
+  const fallbackPortfolio = {
     totalValue: 10250.50,
     totalGain: 250.50,
     totalGainPercent: 2.51,
+    availableBalance: 9749.50,
     positions: [
-      { symbol: 'BTC', amount: 0.05, value: 2162.54, gain: 45.30 },
-      { symbol: 'ETH', amount: 1.2, value: 3096.54, gain: -15.20 },
-      { symbol: 'ADA', amount: 500, value: 226.05, gain: 12.80 },
+      { symbol: 'BTC', amount: 0.05, value: 2162.54, gain: 45.30, gainPercent: 2.14 },
+      { symbol: 'ETH', amount: 1.2, value: 3096.54, gain: -15.20, gainPercent: -0.49 },
+      { symbol: 'ADA', amount: 500, value: 226.05, gain: 12.80, gainPercent: 6.01 },
     ]
-  });
+  };
+
+  const displayCryptoData = cryptoData.length > 0 ? cryptoData : fallbackCryptoData;
+  const displayPortfolio = portfolio || fallbackPortfolio;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 space-y-8">
@@ -34,9 +43,9 @@ const TradingDashboard = () => {
             <CardTitle className="text-sm text-muted-foreground">Total Portfolio Value</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">${portfolio.totalValue.toLocaleString()}</div>
-            <div className={`text-sm flex items-center mt-1 ${portfolio.totalGain >= 0 ? 'trading-green' : 'trading-red'}`}>
-              {portfolio.totalGain >= 0 ? '+' : ''}${portfolio.totalGain.toFixed(2)} ({portfolio.totalGainPercent}%)
+            <div className="text-3xl font-bold">${displayPortfolio.totalValue.toLocaleString()}</div>
+            <div className={`text-sm flex items-center mt-1 ${displayPortfolio.totalGain >= 0 ? 'trading-green' : 'trading-red'}`}>
+              {displayPortfolio.totalGain >= 0 ? '+' : ''}${displayPortfolio.totalGain.toFixed(2)} ({displayPortfolio.totalGainPercent}%)
             </div>
           </CardContent>
         </Card>
@@ -46,7 +55,7 @@ const TradingDashboard = () => {
             <CardTitle className="text-sm text-muted-foreground">Available Balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">${(10000 - (portfolio.totalValue - 10000)).toLocaleString()}</div>
+            <div className="text-3xl font-bold">${displayPortfolio.availableBalance.toLocaleString()}</div>
             <div className="text-sm text-muted-foreground mt-1">Ready to trade</div>
           </CardContent>
         </Card>
@@ -56,7 +65,7 @@ const TradingDashboard = () => {
             <CardTitle className="text-sm text-muted-foreground">Active Positions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{portfolio.positions.length}</div>
+            <div className="text-3xl font-bold">{displayPortfolio.positions.length}</div>
             <div className="text-sm text-muted-foreground mt-1">Cryptocurrencies</div>
           </CardContent>
         </Card>
@@ -90,7 +99,7 @@ const TradingDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {cryptoData.map((crypto) => (
+                {displayCryptoData.map((crypto) => (
                   <tr key={crypto.symbol} className="border-b border-border/20 hover:bg-muted/20 transition-colors">
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-3">
@@ -142,7 +151,7 @@ const TradingDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {portfolio.positions.map((position) => (
+            {displayPortfolio.positions.map((position) => (
               <div key={position.symbol} className="flex items-center justify-between p-4 glass-card rounded-lg">
                 <div className="flex items-center space-x-4">
                   <div className="w-10 h-10 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center">

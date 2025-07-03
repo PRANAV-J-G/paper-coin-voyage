@@ -3,10 +3,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { User } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar = () => {
-  const [balance] = useState(10000.00);
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const balance = user?.balance || 10000.00;
 
   const handleNavigation = (path: string) => {
     console.log(`Navigating to ${path}`);
@@ -67,6 +70,18 @@ const Navbar = () => {
           <Badge variant="secondary" className="bg-accent/20 text-accent border-accent/30">
             Live Trading
           </Badge>
+
+          {user && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/profile')}
+              className="flex items-center space-x-2"
+            >
+              <User className="w-4 h-4" />
+              <span className="hidden md:block">{user.firstName}</span>
+            </Button>
+          )}
         </div>
       </div>
     </nav>
