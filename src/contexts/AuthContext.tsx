@@ -8,12 +8,12 @@ interface User {
   email: string;
   phone?: string;
   bio?: string;
-  createdAt: string;
+  createdAt?: string;
   totalTrades?: number;
   winRate?: number;
   totalProfit?: number;
   activeTrades?: number;
-  balance: number;
+  balance?: number;
 }
 
 interface AuthContextType {
@@ -31,6 +31,8 @@ interface RegisterData {
   lastName: string;
   email: string;
   password: string;
+  phone?: string;
+  bio?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -56,7 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const initAuth = async () => {
       if (token) {
         try {
-          const userData = await apiService.auth.getProfile();
+          const userData = await apiService.auth.getCurrentUser();
           setUser(userData);
         } catch (error) {
           console.error('Failed to get user profile:', error);
@@ -74,7 +76,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await apiService.auth.login(email, password);
       setToken(response.token);
-      setUser(response.user);
+      // Get user data from the token
+      const userData = await apiService.auth.getCurrentUser();
+      setUser(userData);
       localStorage.setItem('token', response.token);
     } catch (error) {
       throw error;
@@ -85,7 +89,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response = await apiService.auth.register(data);
       setToken(response.token);
-      setUser(response.user);
+      // Get user data from the token
+      const userData = await apiService.auth.getCurrentUser();
+      setUser(userData);
       localStorage.setItem('token', response.token);
     } catch (error) {
       throw error;
