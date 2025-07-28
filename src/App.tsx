@@ -71,11 +71,11 @@ const App = () => {
   console.log('App component is rendering');
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
             <Routes>
               {/* Auth Routes - only accessible when not logged in */}
               <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
@@ -98,9 +98,9 @@ const App = () => {
               {/* Catch all - redirect to landing page */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 };
