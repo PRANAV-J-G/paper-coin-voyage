@@ -161,7 +161,12 @@ class ApiService {
     }) => {
       return this.request<{ message: string }>('/profile', {
         method: 'PUT',
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.phone,
+          bio: data.bio
+        }),
       });
     },
 

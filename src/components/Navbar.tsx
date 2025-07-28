@@ -88,7 +88,7 @@ const Navbar = () => {
                   className="flex items-center space-x-2"
                 >
                   <User className="w-4 h-4" />
-                  <span className="hidden md:block">{user?.firstName || 'User'}</span>
+                  <span className="hidden md:block">{user?.first_name || 'User'}</span>
                 </Button>
                 
                 <Button

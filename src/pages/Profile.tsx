@@ -34,8 +34,8 @@ const Profile = () => {
         const data = await apiService.auth.getProfile();
         setProfileData(data);
         setFormData({
-          firstName: data.first_name || data.firstName || '',
-          lastName: data.last_name || data.lastName || '',
+          firstName: data.first_name || '',
+          lastName: data.last_name || '',
           email: data.email || '',
           phone: data.phone || '',
           bio: data.bio || ''
@@ -103,8 +103,8 @@ const Profile = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold">
-                    {profileData.first_name || profileData.firstName || formData.firstName || 'User'} {' '}
-                    {profileData.last_name || profileData.lastName || formData.lastName || ''}
+                    {profileData.first_name || formData.firstName || 'User'} {' '}
+                    {profileData.last_name || formData.lastName || ''}
                   </h3>
                   <p className="text-muted-foreground">{profileData.email}</p>
                   {(profileData.phone || formData.phone) && (

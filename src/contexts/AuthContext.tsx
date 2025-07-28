@@ -2,17 +2,16 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { apiService } from '@/services/api';
 
 interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
+  id: number;
+  first_name: string;
+  last_name: string;
   email: string;
   phone?: string;
   bio?: string;
-  createdAt?: string;
-  totalTrades?: number;
-  winRate?: number;
-  totalProfit?: number;
-  activeTrades?: number;
+  created_at?: string;
+  total_trades?: number;
+  active_trades?: number;
+  total_pnl?: number;
   balance?: number;
 }
 
@@ -106,8 +105,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const updateProfile = async (data: Partial<User>) => {
     try {
-      const updatedUser = await apiService.auth.updateProfile(data);
-      setUser(updatedUser);
+      await apiService.auth.updateProfile({
+        firstName: data.first_name,
+        lastName: data.last_name,
+        phone: data.phone,
+        bio: data.bio
+      });
+      // Refresh user data after update
+      const userData = await apiService.auth.getCurrentUser();
+      setUser(userData);
     } catch (error) {
       throw error;
     }

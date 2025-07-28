@@ -13,23 +13,42 @@ export interface CryptoPrice {
   lastUpdated: string;
 }
 
+// Map backend PriceData to frontend CryptoPrice format
+const mapPriceData = (priceData: any): CryptoPrice => ({
+  symbol: priceData.symbol,
+  name: priceData.symbol, // Backend doesn't provide name, use symbol
+  price: priceData.price,
+  change: priceData.change_24h || 0,
+  volume: priceData.volume?.toString() || '0',
+  lastUpdated: new Date().toISOString()
+});
+
 export const useCryptoPrices = () => {
   const [prices, setPrices] = useState<CryptoPrice[]>([]);
   const { subscribe, unsubscribe } = useWebSocket();
 
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['crypto-prices'],
-    queryFn: () => apiService.crypto.getPrices(),
-    refetchInterval: 30000,
-    retry: false, // Don't retry failed requests
-    enabled: false, // Disable auto-fetching for now since backend isn't ready
-  });
-
+  // For now, return mock data since backend doesn't have a bulk prices endpoint
   useEffect(() => {
-    if (data && data.length > 0) {
-      setPrices(data);
-    }
-  }, [data]);
+    const mockPrices: CryptoPrice[] = [
+      {
+        symbol: 'BTC',
+        name: 'Bitcoin',
+        price: 43250.00,
+        change: 2.5,
+        volume: '1.2B',
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        symbol: 'ETH', 
+        name: 'Ethereum',
+        price: 2640.00,
+        change: -1.2,
+        volume: '800M',
+        lastUpdated: new Date().toISOString()
+      }
+    ];
+    setPrices(mockPrices);
+  }, []);
 
   useEffect(() => {
     // Subscribe to real-time price updates when available
@@ -44,9 +63,9 @@ export const useCryptoPrices = () => {
 
   return {
     prices,
-    isLoading: false, // Don't show loading state when backend is not ready
-    error,
-    refetch,
+    isLoading: false,
+    error: null,
+    refetch: () => {},
   };
 };
 
@@ -62,14 +81,14 @@ export const useCryptoPrice = (symbol: string) => {
 
   useEffect(() => {
     if (data) {
-      setPrice(data);
+      setPrice(mapPriceData(data));
     }
   }, [data]);
 
   useEffect(() => {
     if (symbol) {
-      subscribe(`crypto-price-${symbol}`, (newPrice: CryptoPrice) => {
-        setPrice(newPrice);
+      subscribe(`crypto-price-${symbol}`, (newPrice: any) => {
+        setPrice(mapPriceData(newPrice));
       });
 
       return () => {

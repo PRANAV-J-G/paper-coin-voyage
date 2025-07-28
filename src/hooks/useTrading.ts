@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiService } from '@/services/api';
 import { useWebSocket } from './useWebSocket';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface Order {
   id: string;
@@ -41,20 +42,41 @@ export interface Portfolio {
   }[];
 }
 
+// Map backend TradeData to frontend Trade format
+const mapTradeData = (tradeData: any, index: number): Trade => ({
+  id: `${tradeData.symbol}-${tradeData.timestamp}-${index}`,
+  symbol: tradeData.symbol,
+  side: tradeData.action as 'buy' | 'sell',
+  amount: tradeData.quantity,
+  price: tradeData.price,
+  fee: 0, // Backend doesn't provide fee
+  total: tradeData.quantity * tradeData.price,
+  timestamp: tradeData.timestamp
+});
+
+// Map backend PortfolioData to frontend Portfolio format
+const mapPortfolioData = (portfolioData: any): Portfolio => ({
+  totalValue: portfolioData.balance + (portfolioData.holdings?.reduce((sum: number, h: any) => sum + h.value, 0) || 0),
+  totalGain: 0, // Backend doesn't provide this
+  totalGainPercent: 0, // Backend doesn't provide this
+  availableBalance: portfolioData.balance,
+  positions: portfolioData.holdings?.map((holding: any) => ({
+    symbol: holding.symbol,
+    amount: holding.quantity,
+    value: holding.value,
+    gain: 0, // Backend doesn't provide this
+    gainPercent: 0 // Backend doesn't provide this
+  })) || []
+});
+
 export const useOrders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const { subscribe, unsubscribe } = useWebSocket();
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['orders'],
-    queryFn: () => apiService.trading.getOrders(),
-  });
-
+  // Backend doesn't have orders endpoint, return mock data for now
   useEffect(() => {
-    if (data) {
-      setOrders(data);
-    }
-  }, [data]);
+    setOrders([]);
+  }, []);
 
   useEffect(() => {
     subscribe('orders', (newOrders: Order[]) => {
@@ -68,14 +90,15 @@ export const useOrders = () => {
 
   return {
     orders,
-    isLoading,
-    error,
+    isLoading: false,
+    error: null,
   };
 };
 
 export const useCreateOrder = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   return useMutation({
     mutationFn: (orderData: {
@@ -84,10 +107,26 @@ export const useCreateOrder = () => {
       amount: number;
       price?: number;
       type: 'market' | 'limit';
-    }) => apiService.trading.createOrder(orderData),
+    }) => {
+      if (!user) throw new Error('User not authenticated');
+      
+      const apiCall = orderData.side === 'buy' 
+        ? apiService.trading.buy({
+            user_id: user.id,
+            symbol: orderData.symbol,
+            quantity: orderData.amount
+          })
+        : apiService.trading.sell({
+            user_id: user.id,
+            symbol: orderData.symbol,
+            quantity: orderData.amount
+          });
+      
+      return apiCall;
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['portfolio'] });
+      queryClient.invalidateQueries({ queryKey: ['trades'] });
       toast({
         title: 'Order Created',
         description: 'Your order has been placed successfully.',
@@ -106,24 +145,27 @@ export const useCreateOrder = () => {
 export const usePortfolio = () => {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const { subscribe, unsubscribe } = useWebSocket();
+  const { user } = useAuth();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['portfolio'],
-    queryFn: () => apiService.trading.getPortfolio(),
-    retry: false, // Don't retry failed requests
-    enabled: false, // Disable auto-fetching for now since backend isn't ready
+    queryFn: () => {
+      if (!user) throw new Error('User not authenticated');
+      return apiService.trading.getPortfolio(user.id);
+    },
+    enabled: !!user,
   });
 
   useEffect(() => {
     if (data) {
-      setPortfolio(data);
+      setPortfolio(mapPortfolioData(data));
     }
   }, [data]);
 
   useEffect(() => {
     // Subscribe to portfolio updates when available
-    subscribe('portfolio', (newPortfolio: Portfolio) => {
-      setPortfolio(newPortfolio);
+    subscribe('portfolio', (newPortfolio: any) => {
+      setPortfolio(mapPortfolioData(newPortfolio));
     });
 
     return () => {
@@ -133,7 +175,7 @@ export const usePortfolio = () => {
 
   return {
     portfolio,
-    isLoading: false, // Don't show loading state when backend is not ready
+    isLoading,
     error,
   };
 };
@@ -141,21 +183,26 @@ export const usePortfolio = () => {
 export const useTrades = (limit: number = 50) => {
   const [trades, setTrades] = useState<Trade[]>([]);
   const { subscribe, unsubscribe } = useWebSocket();
+  const { user } = useAuth();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['trades', limit],
-    queryFn: () => apiService.trading.getTrades(limit),
+    queryFn: () => {
+      if (!user) throw new Error('User not authenticated');
+      return apiService.trading.getTrades(user.id);
+    },
+    enabled: !!user,
   });
 
   useEffect(() => {
     if (data) {
-      setTrades(data);
+      setTrades(data.map((trade, index) => mapTradeData(trade, index)));
     }
   }, [data]);
 
   useEffect(() => {
-    subscribe('trades', (newTrades: Trade[]) => {
-      setTrades(newTrades);
+    subscribe('trades', (newTrades: any[]) => {
+      setTrades(newTrades.map((trade, index) => mapTradeData(trade, index)));
     });
 
     return () => {
